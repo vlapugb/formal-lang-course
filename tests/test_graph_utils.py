@@ -24,13 +24,25 @@ def test_get_graph_info_without_common_node(tmp_path, monkeypatch):
     assert get_graph_info("example") == (4, 4, {"a", "b"})
 
 
-def test_get_graph_info_propagates_download_error(monkeypatch):
-    monkeypatch.setattr(
-        cfpq_data, "download", Mock(side_effect=ValueError("Unknown graph"))
-    )
+def test_get_graph_info_unknown_graph():
+    with pytest.raises(FileNotFoundError):
+        get_graph_info("__missing_test_graph__")
 
-    with pytest.raises(ValueError, match="Unknown graph"):
-        get_graph_info("unknown")
+
+def test_get_graph_info_empty_graph(tmp_path, monkeypatch):
+    csv_path = tmp_path / "empty.csv"
+    csv_path.write_text("", encoding="utf-8")
+    monkeypatch.setattr(cfpq_data, "download", Mock(return_value=csv_path))
+
+    assert get_graph_info("example") == (0, 0, set())
+
+
+def test_get_graph_info_parallel_edges_and_self_loop(tmp_path, monkeypatch):
+    csv_path = tmp_path / "graph.csv"
+    csv_path.write_text("0 1 a\n0 1 a\n1 1 b\n", encoding="utf-8")
+    monkeypatch.setattr(cfpq_data, "download", Mock(return_value=csv_path))
+
+    assert get_graph_info("example") == (2, 3, {"a", "b"})
 
 
 def test_create_two_cycles_graph(tmp_path):
@@ -63,9 +75,10 @@ def test_create_two_cycles_saves_dot(tmp_path):
     }
 
 
-def test_create_two_cycles_rejects_zero_size(tmp_path):
+@pytest.mark.parametrize("n, m", [(0, 2), (2, 0), (-1, 2)])
+def test_create_two_cycles_rejects_nonpositive_size(tmp_path, n, m):
     with pytest.raises(ValueError):
-        create_two_cycles_graph(0, 2, ("a", "b"), tmp_path / "graph.dot")
+        create_two_cycles_graph(n, m, ("a", "b"), tmp_path / "graph.dot")
 
 
 def test_create_two_cycles_requires_two_labels(tmp_path):
@@ -76,3 +89,20 @@ def test_create_two_cycles_requires_two_labels(tmp_path):
 def test_create_two_cycles_requires_integer_sizes(tmp_path):
     with pytest.raises(TypeError):
         create_two_cycles_graph(1.5, 2, ("a", "b"), tmp_path / "graph.dot")
+
+
+@pytest.mark.parametrize("labels", ["ab", ("a", None)])
+def test_create_two_cycles_rejects_invalid_label_types(tmp_path, labels):
+    with pytest.raises(TypeError):
+        create_two_cycles_graph(1, 1, labels, tmp_path / "graph.dot")
+
+
+def test_create_two_cycles_with_same_labels(tmp_path):
+    output_path = str(tmp_path / "graph.dot")
+    graph = create_two_cycles_graph(1, 1, ("same", "same"), output_path)
+
+    assert graph.number_of_edges() == 4
+    assert set(nx.get_edge_attributes(graph, "label").values()) == {"same"}
+    dot_graph = pydot.graph_from_dot_file(output_path)[0]
+    assert len(dot_graph.get_edges()) == 4
+    assert {edge.get_label() for edge in dot_graph.get_edges()} == {"same"}
