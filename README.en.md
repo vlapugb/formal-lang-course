@@ -175,7 +175,7 @@ When working with these tests, the following rules should be followed:
 - In these tests, usually, only one block should be modified:
   ```python
   try:
-      from project.task2 import regex_to_dfa, graph_to_nfa
+      from project.automata_construction import regex_to_dfa, graph_to_nfa
   except ImportError:
       pytestmark = pytest.mark.skip("Task 2 is not ready to test!")
   ```

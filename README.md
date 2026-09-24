@@ -157,7 +157,7 @@
 - В данных тестах обычно можно изменять только одно --- блок
   ```python
   try:
-      from project.task2 import regex_to_dfa, graph_to_nfa
+      from project.automata_construction import regex_to_dfa, graph_to_nfa
   except ImportError:
       pytestmark = pytest.mark.skip("Task 2 is not ready to test!")
   ```
