@@ -10,7 +10,11 @@ import pytest
 from scipy.sparse import csr_matrix
 
 from project.automata_utils import graph_to_nfa, regex_to_dfa
-from project.matrix_automata import AdjacencyMatrixFA, intersect_automata, tensor_based_rpq
+from project.matrix_automata import (
+    AdjacencyMatrixFA,
+    intersect_automata,
+    tensor_based_rpq,
+)
 
 
 def words(alphabet, max_length):
