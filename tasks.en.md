@@ -93,7 +93,7 @@ If they are not specified, assume all vertices are start and final states.
 
 > Max score: 8
 
-- [ ] Using [sparse matrices from sciPy](https://docs.scipy.org/doc/scipy/reference/sparse.html), implement a **function** for reachability with regular constraints for multiple start vertices (algorithm based on multiple source BFS and linear algebra).
+- [x] Using [sparse matrices from sciPy](https://docs.scipy.org/doc/scipy/reference/sparse.html), implement a **function** for reachability with regular constraints for multiple start vertices (algorithm based on multiple source BFS and linear algebra).
   - To construct the regular query and graph, use the results from [Task 2](#task-2-constructing-a-dfa-from-a-regular-expression-and-a-nfa-from-a-graph).
   - Required function:
   ```python
@@ -101,7 +101,7 @@ If they are not specified, assume all vertices are start and final states.
            final_nodes: set[int]) -> set[tuple[int, int]]:
     pass
   ```
-- [ ] Add your own tests as needed.
+- [x] Add your own tests as needed.
 
 ## Task 5. Experimental Study of RPQ algorithms
 
